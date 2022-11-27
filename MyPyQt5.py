@@ -16,8 +16,11 @@ class MyQTreeWidget(QTreeWidget,QWidget):
     childChanged = pyqtSignal(int)
     _CHILD_COUNT = 0
     _ROW_INDEX = 0
-    def __init__(self, parent: typing.Optional[QWidget] = ...) -> None:
+    def __init__(self, parent: typing.Optional[QWidget],counterLabel:typing.Optional[QLabel]) -> None:
         super().__init__(parent)
+        self.counterLabel = counterLabel
+        if counterLabel != None : 
+            self.onLengthChanged.connect(self.CounterLabel)
         
     def extract_data_to_DataFrame(self,range_of:range=None)-> pandas.DataFrame:
         self.COLUMN_NAMES = [self.headerItem().text(i) for i in (range(self.columnCount()) if range_of == None else range_of)]
@@ -73,6 +76,11 @@ class MyQTreeWidget(QTreeWidget,QWidget):
     @pyqtProperty(int)
     def length(self):
         return self._ROW_INDEX
+    
+
+    def CounterLabel(self):
+        self.counterLabel.setText(f"Counter : {self._ROW_INDEX}")
+        
     
     def setColumns(self, columns: list) -> None:
         for column in columns:
@@ -267,50 +275,49 @@ class QSideMenuNewStyle(QWidget):
         self.verticalLayout = QVBoxLayout(parent)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
-        self.TopFrame = QFrameDraggable(parent)
+        self.TopFrame = MyQFrame(parent,Draggable=True)
         self.TopFrame.setFixedHeight(TopFrameFixedHight) if TopFrameFixedHight != None else None
-        self.TopFrame.setStyleSheet(Styles.APP)
+        self.TopFrame.setStyleSheet("background-color:transparent;")
         self.horizontalLayout_2 = QHBoxLayout(self.TopFrame)
         self.MenuButton = QPushButton(self.TopFrame , text=" Menu")
+        self.MenuButton.setStyleSheet(Styles.BUTTON)
         self.MenuButton.setFlat(True)
         self.MenuButton.setShortcut("Ctrl+m")
         self.MenuButton.setFixedHeight(self.TopFrame.height()-15)
-        self.MenuButton.setStyleSheet(Styles.BUTTON)
+        self.MenuButton.setFixedWidth(50)
         self.horizontalLayout_2.addWidget(self.MenuButton, 1, Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignCenter)
         self.MainLabel = QLabel(self.TopFrame)
         self.MainLabel.setText("Statues")
-        
         self.horizontalLayout_2.addWidget(self.MainLabel, 4 ,Qt.AlignmentFlag.AlignCenter|Qt.AlignmentFlag.AlignCenter)
         self.MiniButton = QPushButton(self.TopFrame)
-        
         self.MiniButton.setFlat(True)
         self.MiniButton.setFixedSize(QSize(20,20))
         self.MiniButton.setIcon(QIcon(MiniButtonIconPath)) if MiniButtonIconPath != None else None
         self.horizontalLayout_2.addWidget(self.MiniButton, 0,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignCenter)
-        self.MiniButton.clicked.connect(parent.showMinimized)
+        self.MiniButton.clicked.connect(parent.parent().showMinimized)
         self.MaxButton = QPushButton(self.TopFrame)
-        
         self.MaxButton.setFlat(True)
         self.MaxButton.setFixedSize(QSize(20,20))
         self.MaxButton.setIcon(QIcon(MaxButtonIconPath)) if MaxButtonIconPath != None else None
         self.MaxButton.clicked.connect(lambda : self.max_mini(self.parent().parent(),MaxButtonIconPath,Mini_MaxButtonIconPath,ButtonsFrameFixedwidth))
         self.horizontalLayout_2.addWidget(self.MaxButton, 0,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignCenter)
-        self.ExitButton = QPushButton(self.TopFrame)
-        
+        self.ExitButton = QPushButton(self.TopFrame)        
         self.ExitButton.setFlat(True)
         self.ExitButton.setFixedSize(QSize(20,20))
+        self.ExitButton.setIconSize(QSize(20,20))
         self.ExitButton.setIcon(QIcon(ExitButtonIconPath)) if ExitButtonIconPath != None else None
         self.ExitButton.clicked.connect(parent.close)
         self.ExitButton.clicked.connect(QCoreApplication.instance().quit)        
         self.horizontalLayout_2.addWidget(self.ExitButton, 0, Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignCenter)
         self.horizontalLayout_2.setContentsMargins(5,5,6,5)
         self.verticalLayout.addWidget(self.TopFrame)
-        self.BottomFrame = QFrame(parent)
-        self.BottomFrame.setStyleSheet(Styles.APP)
+        self.BottomFrame = MyQFrame(parent)
+        self.BottomFrame.setStyleSheet("background-color:transparent;")
         self.horizontalLayout = QHBoxLayout(self.BottomFrame)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setSpacing(0)
-        self.ButtonsFrame = QFrame(self.BottomFrame)
+        self.ButtonsFrame = MyQFrame(self.BottomFrame)
+        self.ButtonsFrame.setStyleSheet("background-color:transparent;")
         self.ButtonsFrame.setFixedWidth(ButtonsFrameFixedwidth) if ButtonsFrameFixedwidth != None else None
         self.verticalLayout_2 = QVBoxLayout(self.ButtonsFrame)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -322,14 +329,12 @@ class QSideMenuNewStyle(QWidget):
             sizePolicy.setHeightForWidth(Button.sizePolicy().hasHeightForWidth())
             Button.setFixedHeight(ButtonsFixedHight) if ButtonsFixedHight != None else None
             Button.setSizePolicy(sizePolicy)
-            # Button.setStyleSheet(Styles.BUTTON)
             if index == ButtonsCount - 1 :
                 self.verticalLayout_2.addWidget(Button ,1, Qt.AlignmentFlag.AlignTop)
             else :
                 self.verticalLayout_2.addWidget(Button ,0, Qt.AlignmentFlag.AlignTop)
             Button.setFlat(True)
             self.Buttons.append(Button)
-
         self.HideLabel = QLabel(self.ButtonsFrame)
         self.HideLabel.setText("Hide Browser")
         self.verticalLayout_2.addWidget(self.HideLabel,0,Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
@@ -343,15 +348,13 @@ class QSideMenuNewStyle(QWidget):
         self.verticalLayout_2.addWidget(self.DarkModeLabel,0,Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
         self.DarkModetoggle = AnimatedToggle(self.ButtonsFrame)
         self.DarkModetoggle.setShortcut("Ctrl+d")
-        self.DarkModetoggle.setCheckedColor("#c21919")
+        # self.DarkModetoggle.setCheckedColor("#c21919")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.DarkModetoggle.setSizePolicy(sizePolicy)
         self.verticalLayout_2.addWidget(self.DarkModetoggle,0,Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
-
         self.horizontalLayout.addWidget(self.ButtonsFrame)
         self.stackedWidget = QStackedWidget(self.BottomFrame)
         self.Pages = []
-
         for Page in range(PagesCount):
             Page = QWidget()
             self.stackedWidget.addWidget(Page)
@@ -360,7 +363,6 @@ class QSideMenuNewStyle(QWidget):
         self.horizontalLayout.addWidget(self.stackedWidget)
         self.horizontalLayout.setStretch(0 , StretchMenuForStacked[0])
         self.horizontalLayout.setStretch(1, StretchMenuForStacked[1])
-        
         self.verticalLayout.addWidget(self.BottomFrame)
         self.verticalLayout.setStretch(0 ,StretchTopForBottomFrame[0])
         self.verticalLayout.setStretch(1 , StretchTopForBottomFrame[1])
@@ -371,10 +373,6 @@ class QSideMenuNewStyle(QWidget):
         self.MenuButton.setIcon(QIcon(DefultIconPath)) if DefultIconPath != None else None
         self.MenuButton.clicked.connect(self.MenuClick)
         self.ButtonsFrame.setFixedWidth(0)
-        self.ExitButton.setStyleSheet(Styles.BUTTON)
-        self.MaxButton.setStyleSheet(Styles.BUTTON)
-        self.MiniButton.setStyleSheet(Styles.BUTTON)
-
         self.setCurrentPage(0)
     
 
@@ -436,19 +434,33 @@ class QSideMenuNewStyle(QWidget):
 
 
 
-class QFrameDraggable(QFrame):
-    def __init__(self, parent: typing.Optional[QWidget] = ...) -> None:
+class MyQFrame(QFrame):
+    Enterd = pyqtSignal()
+    Leaved = pyqtSignal()
+
+    def __init__(self, parent: typing.Optional[QWidget] = ...,Draggable:typing.Optional[bool]=False) -> None:
         super().__init__(parent)
         self.oldPos = self.pos()
+        self.__draggable = Draggable
 
+    def enterEvent(self, a0: QEvent) -> None:
+        self.Enterd.emit()
+        return super().enterEvent(a0)
+        
+    def leaveEvent(self, a0: QEvent) -> None:
+        self.Leaved.emit()
+        return super().leaveEvent(a0)
+    
     def mousePressEvent(self, event):
         self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        delta = QPoint (event.globalPos() - self.oldPos)
-        self.parent().parent().move(self.parent().parent().x() + delta.x(), self.parent().parent().y() + delta.y())
-        self.oldPos = event.globalPos()
+        if self.__draggable:
+            delta = QPoint (event.globalPos() - self.oldPos)
+            self.parent().parent().move(self.parent().parent().x() + delta.x(), self.parent().parent().y() + delta.y())
+            self.oldPos = event.globalPos()
 
+            
 class MyMessageBox(QMessageBox):
     INFO = QMessageBox.Icon.Information
     WARNING = QMessageBox.Icon.Warning
@@ -539,6 +551,13 @@ class MyQMainWindow(QMainWindow):
     Entered = pyqtSignal()
     ShowSignal = pyqtSignal()
     MessageBox = MyMessageBox()
+    
+
+    
+    def __init__(self) -> None:
+        super().__init__()
+        self.mainWidget = QWidget(self)
+        self.SetupUi()
 
     def leaveEvent(self, a0:QEvent) -> None: 
         self.Leaved.emit()
@@ -551,8 +570,8 @@ class MyQMainWindow(QMainWindow):
     def setFrameLess(self):
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
 
-    def SetupUi(self,centeralWidget:QWidget):
-        self.setCentralWidget(centeralWidget)
+    def SetupUi(self):
+        self.setCentralWidget(self.mainWidget)
         self.show()
         sys.exit(self.App.exec_())
 
@@ -567,3 +586,4 @@ class MyQMainWindow(QMainWindow):
     
 
         
+

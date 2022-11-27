@@ -1,185 +1,23 @@
+# gradiantcolor->  background-color: qlineargradient(spread:pad, x1:1, y1:0, x2:0.227364, y2:0.858, stop:0 rgba(0, 0, 0, 255), stop:0.988636 rgba(68, 90, 25, 203));
+# gradiantcolor->  background-color: qlineargradient(spread:pad, x1:1, y1:0.961, x2:0.03, y2:0.0463182, stop:0.037594 rgba(189, 0, 160, 179), stop:0.947368 rgba(0, 0, 0, 217));
+# gradiantcolor->  background-color:qlineargradient(spread:pad, x1:0.977273, y1:0.945, x2:0.00568182, y2:0.024, stop:0 rgba(189, 0, 160, 174), stop:1 rgba(41, 41, 41, 198));
+
+"""
+background-color:transparent;
+border:2px solid qlineargradient(spread:pad, x1:0.716, y1:0, x2:0.517, y2:0.613409, stop:0.289773 rgba(151, 133, 210, 223), stop:0.926136 rgba(0, 183, 232, 239));
+border-radius:6px;
+"""
 class Styles():
     BUTTON = """
     QPushButton{
-        color:black;
-        background-color:transparent;
-        border:none;
-        border-radius:3px 3px 0px 0px;
+        color:white;/*
+        background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(68, 90, 25, 203));
+        */border-radius:4px;
+
     }
     QPushButton:hover{
         color:black;
-        background-color:#C1C1C1;
-        
-    }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
-     """
-    BUTTON_RUN = """
-    QPushButton{
-        color:black;
-        background-color:transparent;
-        font:20px bold;       
-        border:2px solid black ;
-        border-radius:8px;
-    }
-    QPushButton:hover{
-        color:#c21919;
         background-color:white;
-        
     }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
-     """
-    BUTTON_RUN_DARK = """
-    QPushButton{
-        color:white;
-        background-color:transparent;
-        font:20px bold;       
-        border:2px solid white ;
-        border-radius:8px;
-    }
-    QPushButton:hover{
-        color:#c21919;
-        background-color:white;
-        
-    }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
-     """
-    BUTTON_SIDE = """
-    QPushButton{
-        color:white;
-        background-color:transparent;
-        border:none;
-        border-radius:3px;
-    }
-    QPushButton:hover{
-        color:red;
-        background-color:gray;
-    }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
-     """
-    BUTTON_SIDE_ = """
-    QPushButton{
-        color:#f2dbba;
-        background-color:transparent;
-        border:none;
-        border-radius:3px;
-    }
-    QPushButton:hover{
-        color:red;
-        background-color:gray;
-    }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
-     """
-    BUTTON_DARK = """
-    QPushButton{
-        color:black;
-        background-color: white;
-        border:2px solid black ;
-        border-radius:4px;
-    }
-    QPushButton:hover{
 
-        color:#c21919;
-        background-color:gray;
-        
-    }
-    QPushButton:pressed{
-        color:black;
-        background-color: white;
-    }
      """
-
-    LINEDIT="""
-    QLineEdit
-{
-	background-color: #c2c7d5;
-	color: #000;
-	font-weight: bold;
-	border: none;
-	border-radius: 2px;
-	
-
-}
-    """
-    SPINBOX="""
-    QSpinBox
-{
-	background-color: white;
-	color: black;
-    font:16px bold;
-	border: none;
-	border-radius: 2px;
-}
-    
-    """
-    COMPOBOX="""
-    QComboBox
-{
-	background-color: #c2c7d5;
-	color: #000;
-	font-weight: bold;
-	border: none;
-	border-radius: 2px;
-}
-
-    """
-
-    APP = """
-    
-    background-color: gray;
-    color:black;
-    
-    """
-    APP_DARK = """
-    
-    background-color: black;
-    color:white;
-    
-    """
-    PROGRESSBAR = """
-    background-color:white;
-    text-align:center;
-    color:black;
-    
-    border-radius:5px;
-    """
-    TAB="""
-    
-        background-color: gray;
-        color:black;
-    
-    """
-    LABEL="""
-    
-    text-align:center;
-    font-size:10pt;
-    
-    """
-    CHECKBOX = """
-    
-    QCheckBox {
-    background-color:gray; 
-    text-align:center;
-    color:black;
-    font-size:11pt;
-    border-radius:4px;
-    }
-    
-    
-    """#border: 2px groove;
-       #border-color: blue ;
-# print("+"+("\u2066+966 55 020 8031\u2069".split("+")[-1][:15]))

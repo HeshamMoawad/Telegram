@@ -10,6 +10,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from MyPyQt5 import QThread,QObject,pyqtSignal
 import typing , os
 
+# https://web.telegram.org/?legacy=1#/im?p=@Profasdasd
+# https://t.me/Profasdasd
 
 class JavaScriptCodeHandler(object):
     GET_ALL_MEMBER = """
@@ -56,14 +58,19 @@ class Telegram(QObject):
 
 
 
-    def __init__(self,headless,DarkMode:typing.Optional[bool]=False) -> None:
-        self.headless = headless
+    def __init__(
+            self,
+            headless:bool = False ,
+            darkMode:bool = False ,
+            userProfile:str="User1", 
+            ) -> None:
+        
         option = Options()
-        option.headless = self.headless
+        option.headless = True if  headless == True else False
         option.add_experimental_option("excludeSwitches", ["enable-logging"])
         option.add_argument('--disable-logging')
-        option.add_argument('--force-dark-mode') if DarkMode != False else None
-        profile = os.path.join(os.getcwd(), "profiles", "TelegramAccount")
+        option.add_argument('--force-dark-mode') if darkMode == True else None
+        profile = os.path.join(os.getcwd(), "profiles", userProfile)
         option.add_argument(f"user-data-dir={profile}")
         self.driver = Chrome(ChromeDriverManager().install(),options=option)
         self.driver.maximize_window()
