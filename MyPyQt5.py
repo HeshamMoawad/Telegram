@@ -4,7 +4,7 @@ from PyQt5.QtCore import (QCoreApplication, QEasingCurve, QPoint, QPointF, QEven
                           QPropertyAnimation, QRect, QRectF, QObject ,
                           QSequentialAnimationGroup, QSize, Qt, pyqtProperty,
                           pyqtSignal, pyqtSlot , QThread)
-from PyQt5.QtGui import QBrush, QColor,QCursor, QIcon, QPainter, QPaintEvent, QPen,QMouseEvent
+from PyQt5.QtGui import * 
 from PyQt5.QtWidgets import *
 from styles import Styles
 
@@ -482,8 +482,7 @@ class MyMessageBox(QMessageBox):
         self.setIcon(self.CRITICAL)
         self.setWindowTitle(title)
         self.setText(text)
-        self.exec_()
-        
+        self.exec_()        
     
 
 class MyCustomContextMenu(QObject):
@@ -531,10 +530,6 @@ class MyThread(QThread):
     def kill(self,msg:typing.Optional[bool]):
         if self.isRunning():
             self.terminate()
-            try :
-                self.Whatsapp.exit()
-            except AttributeError :
-                pass
             self.wait()
             if msg:
                 self.msg.showCritical(text="  كفااااااااااااية  ")
@@ -552,7 +547,6 @@ class MyQMainWindow(QMainWindow):
     ShowSignal = pyqtSignal()
     MessageBox = MyMessageBox()
     
-
     
     def __init__(self) -> None:
         super().__init__()
@@ -584,6 +578,4 @@ class MyQMainWindow(QMainWindow):
         app_icon.addFile(relativePath, QSize(256,256))
         self.App.setWindowIcon(app_icon)
     
-
-        
 

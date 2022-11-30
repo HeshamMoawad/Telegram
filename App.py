@@ -1,13 +1,12 @@
-from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow
+from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow,MyThread , pyqtSignal
 from pages import Page1 , Page2 , Page3
 from styles import Styles
+from mainclass import Telegram
 
 
 class Window(MyQMainWindow):
     def SetupUi(self):
-        
         self.setStyleSheet("""background-color: qlineargradient(spread:pad, x1:1, y1:0, x2:0.227364, y2:0.858, stop:0 rgba(0, 0, 0, 255), stop:0.988636 rgba(68, 90, 25, 203));color:white;""")
-        
         self.resize(650,600)
         self.setFrameLess()
         self.Menu = QSideMenuNewStyle(
@@ -24,30 +23,118 @@ class Window(MyQMainWindow):
         self.Page1 = Page1(self.Menu.GetPage(0))
         self.Page2 = Page2(self.Menu.GetPage(1))
         self.Page3 = Page3(self.Menu.GetPage(2))
+        
+        ## First Page
         self.scraperPageButton = self.Menu.GetButton(0)
         self.scraperPageButton.setText("Scraper")
         self.scraperPageButton.setStyleSheet(Styles.BUTTON)
         self.scraperPageButton.clicked.connect(lambda: self.Menu.setCurrentPage(0))
+        
+        ## Second Page
         self.channelPageButton = self.Menu.GetButton(1)
         self.channelPageButton.setText("Channel Options")
         self.channelPageButton.setStyleSheet(Styles.BUTTON)
-        self.channelPageButton.clicked.connect(lambda:self.pop.addUserPopUp("ss"))#lambda: self.Menu.setCurrentPage(1)
+        self.channelPageButton.clicked.connect(lambda: self.Menu.setCurrentPage(1))
+        
+        ## Third Page
         self.settingPageButton = self.Menu.GetButton(2)
         self.settingPageButton.setText("Setting")
         self.settingPageButton.setStyleSheet(Styles.BUTTON)
         self.settingPageButton.clicked.connect(lambda: self.Menu.setCurrentPage(2))
 
-        
+        ## ScraperThread Part 
+        self.ScraperThread = ScraperThread()
+        self.ScraperThread.setMainClass(self)
+        self.ScraperThread.statues.connect(self.Menu.MainLabel.setText)
+        self.ScraperThread.LeadSignal.connect(self.Page1.treewidget.appendData)
+        self.ScraperThread.message.connect(self.Page1.msg.showInfo)
+        self.Page1.start.clicked.connect(self.ScraperThread.start)
+        self.Page1.stop.clicked.connect(self.ScraperThread.kill)
+
+        ## AddingThread Part
+        self.AddingThread = AddingThread()
+        self.AddingThread.setMainClass(self)
+        self.AddingThread.statues.connect(self.Menu.MainLabel.setText)
+        self.AddingThread.PersntageSignal.connect(self.Page2.bar.setValue)
+        self.AddingThread.message.connect(self.Page2.msg.showInfo)
+        self.Page2.start.clicked.connect(self.AddingThread.start)
+        self.Page2.stop.clicked.connect(self.AddingThread.kill)
         return super().SetupUi()
     
 
+class ScraperThread(MyThread):
+    LeadSignal = pyqtSignal(list)
+    message = pyqtSignal(str)
+    def run(self) -> None:
+        self.statues.emit("Scraper Mode Starting ")
+        channelName = self.MainClass.Page1.channelLineEdit.text()
+        self.MainClass.Page1.channelLineEdit.clear()
+        limit = self.MainClass.Page1.spinBox.value()
+        user = self.MainClass.Page3.comboBox.currentText()
+        self.statues.emit(f"Current Openning User : {user}")
+        try:
+            self.Telegram = Telegram(
+                headless = self.MainClass.Menu.Hidetoggle.isChecked() ,
+                darkMode = self.MainClass.Menu.DarkModetoggle.isChecked() ,
+                userProfile = user,
+            )
+            self.statues.emit(f"Opened {user} Succecfully")
+            con = True
+        except Exception as e :
+            print(e)
+            self.message.emit(f"Can't Opinnig this User {user}")
+            con = False
+        if con:
+            self.Telegram.LeadSignal.connect(self.LeadSignal.emit)
+            self.statues.emit(f"Scraping ...")
+            self.Telegram.scrapeHandlesFromGroup(
+                grouphandle = channelName,
+                limit = limit ,
+            )
+            self.statues.emit("Ending Good Luck Next Time -_^")
+
+    def setMainClass(self,main:Window):
+        self.MainClass = main
+    def mainClass(self):
+        return self.MainClass 
+    
+
+
+class AddingThread(ScraperThread):
+    PersntageSignal = pyqtSignal(int)
+    def run(self) -> None:
+        self.statues.emit("Adding Mode Starting ")
+        channelName = self.MainClass.Page2.channelLineEdit.text()
+        self.MainClass.Page2.channelLineEdit.clear()
+        limit = self.MainClass.Page2.spinBox.value()
+        user = self.MainClass.Page3.comboBox.currentText()
+        self.statues.emit(f"Current Openning User : {user}")
+        try :
+            self.Telegram = Telegram(
+                headless = self.MainClass.Menu.Hidetoggle.isChecked() ,
+                darkMode = self.MainClass.Menu.DarkModetoggle.isChecked() ,
+                userProfile = user,
+            )
+            self.statues.emit(f"Opened {user} Succecfully")
+            con = True
+        except Exception as e :
+            print(e)
+            self.message.emit(f"Can't Opinnig this User {user}")
+            con = False
+        if con:
+            self.Telegram.LeadSignal.connect(self.LeadSignal.emit)
+            self.Telegram.PersntageSignal.connect(self.PersntageSignal.emit)
+            self.statues.emit(f"Start Adding Handles")
+            self.Telegram.addMembersToChannel(
+                channelHandle = channelName ,
+                handlesList = self.MainClass.Page2.getHandlesList()[:limit],
+            )
+            self.statues.emit("Ending Good Luck Next Time -_^")
+        
 
 
 
-
-
-
-
-w = Window()
+if __name__ == "__main__":
+    w = Window()
 
 
