@@ -1,3 +1,12 @@
-2022/11/30-15:55:36.904 16b0 Reusing MANIFEST D:\Hesham Private\Telegram\Handle Scraper\Profiles\test\Default\IndexedDB\https_web.telegram.org_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/30-15:55:36.904 16b0 Recovering log #3
-2022/11/30-15:55:36.919 16b0 Reusing old log D:\Hesham Private\Telegram\Handle Scraper\Profiles\test\Default\IndexedDB\https_web.telegram.org_0.indexeddb.leveldb/000003.log 
+2022/12/01-13:07:58.991 1b08 Reusing MANIFEST D:\Hesham Private\Telegram\Handle Scraper\Profiles\test\Default\IndexedDB\https_web.telegram.org_0.indexeddb.leveldb/MANIFEST-000001
+2022/12/01-13:07:58.991 1b08 Recovering log #4
+2022/12/01-13:07:59.045 1b08 Reusing old log D:\Hesham Private\Telegram\Handle Scraper\Profiles\test\Default\IndexedDB\https_web.telegram.org_0.indexeddb.leveldb/000004.log 
+2022/12/01-13:08:01.147 db4 Level-0 table #8: started
+2022/12/01-13:08:01.179 db4 Level-0 table #8: 999078 bytes OK
+2022/12/01-13:08:01.184 db4 Delete type=0 #4
+2022/12/01-13:08:01.919 6a4 Compacting 1@1 + 1@2 files
+2022/12/01-13:08:01.944 6a4 Generated table #9@1: 583 keys, 66521 bytes
+2022/12/01-13:08:01.944 6a4 Compacted 1@1 + 1@2 files => 66521 bytes
+2022/12/01-13:08:01.948 6a4 compacted to: files[ 0 0 1 0 0 0 0 ]
+2022/12/01-13:08:01.948 6a4 Delete type=2 #5
+2022/12/01-13:08:01.948 6a4 Delete type=2 #8
