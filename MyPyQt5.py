@@ -532,7 +532,8 @@ class MyThread(QThread):
             self.terminate()
             self.wait()
             if msg:
-                self.msg.showCritical(text="  كفااااااااااااية  ")
+                self.msg.showInfo(text="سيبونا ناخد فرصتنا بقى")
+
     def start(self, priority: 'QThread.Priority' = ...) -> None:
         if self.isRunning():
             pass
@@ -579,3 +580,10 @@ class MyQMainWindow(QMainWindow):
         self.App.setWindowIcon(app_icon)
     
 
+class Validation(object):
+    class TelegramValidation(object):
+        def channelNameOrLinkToHandle(self,name:str)->str:
+            if "@" in name:
+                return name
+            elif "https://t.me/"in name :
+                return name.replace("https://t.me/","@")

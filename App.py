@@ -1,4 +1,4 @@
-from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow,MyThread , pyqtSignal
+from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow,MyThread , pyqtSignal ,typing ,Validation
 from pages import Page1 , Page2 , Page3
 from styles import Styles
 from mainclass import Telegram
@@ -23,7 +23,8 @@ class Window(MyQMainWindow):
         self.Page1 = Page1(self.Menu.GetPage(0))
         self.Page2 = Page2(self.Menu.GetPage(1))
         self.Page3 = Page3(self.Menu.GetPage(2))
-        
+        self.valid = Validation.TelegramValidation()
+
         ## First Page
         self.scraperPageButton = self.Menu.GetButton(0)
         self.scraperPageButton.setText("Scraper")
@@ -49,7 +50,7 @@ class Window(MyQMainWindow):
         self.ScraperThread.LeadSignal.connect(self.Page1.treewidget.appendData)
         self.ScraperThread.message.connect(self.Page1.msg.showInfo)
         self.Page1.start.clicked.connect(self.ScraperThread.start)
-        self.Page1.stop.clicked.connect(self.ScraperThread.kill)
+        self.Page1.stop.clicked.connect(lambda : self.ScraperThread.kill(True))
 
         ## AddingThread Part
         self.AddingThread = AddingThread()
@@ -58,9 +59,11 @@ class Window(MyQMainWindow):
         self.AddingThread.PersntageSignal.connect(self.Page2.bar.setValue)
         self.AddingThread.message.connect(self.Page2.msg.showInfo)
         self.Page2.start.clicked.connect(self.AddingThread.start)
-        self.Page2.stop.clicked.connect(self.AddingThread.kill)
+        self.Page2.stop.clicked.connect(lambda : self.AddingThread.kill(True))
         return super().SetupUi()
     
+    
+
 
 class ScraperThread(MyThread):
     LeadSignal = pyqtSignal(list)
@@ -86,19 +89,31 @@ class ScraperThread(MyThread):
             con = False
         if con:
             self.Telegram.LeadSignal.connect(self.LeadSignal.emit)
-            self.statues.emit(f"Scraping ...")
-            self.Telegram.scrapeHandlesFromGroup(
-                grouphandle = channelName,
-                limit = limit ,
-            )
+            self.statues.emit(f" Scraping ... ")
+            collect = limit
+            while True :
+                print("Start Time")
+                self.Telegram.scrapeHandlesFromGroup(
+                    grouphandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName),
+                    limit = limit ,
+                    collect= collect
+                )
+                if self.MainClass.Page1.treewidget._ROW_INDEX >= limit :
+                    break
+                collect += collect
             self.statues.emit("Ending Good Luck Next Time -_^")
+            self.Telegram.exit()
+            self.message.emit("حبيب اخوك ابقى تعالى تانى")
 
     def setMainClass(self,main:Window):
         self.MainClass = main
+
     def mainClass(self):
         return self.MainClass 
-    
 
+    def kill(self, msg: typing.Optional[bool]):
+        self.Telegram.exit()
+        return super().kill(msg)
 
 class AddingThread(ScraperThread):
     PersntageSignal = pyqtSignal(int)
@@ -108,6 +123,7 @@ class AddingThread(ScraperThread):
         self.MainClass.Page2.channelLineEdit.clear()
         limit = self.MainClass.Page2.spinBox.value()
         user = self.MainClass.Page3.comboBox.currentText()
+        self.MainClass.Page1.setkey(self.MainClass.valid.channelNameOrLinkToHandle(channelName))
         self.statues.emit(f"Current Openning User : {user}")
         try :
             self.Telegram = Telegram(
@@ -126,12 +142,12 @@ class AddingThread(ScraperThread):
             self.Telegram.PersntageSignal.connect(self.PersntageSignal.emit)
             self.statues.emit(f"Start Adding Handles")
             self.Telegram.addMembersToChannel(
-                channelHandle = channelName ,
+                channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName) ,
                 handlesList = self.MainClass.Page2.getHandlesList()[:limit],
             )
             self.statues.emit("Ending Good Luck Next Time -_^")
-        
-
+            self.Telegram.exit()
+            self.message.emit("حبيب اخوك ابقى تعالى تانى")
 
 
 if __name__ == "__main__":

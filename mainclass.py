@@ -1,7 +1,7 @@
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -9,7 +9,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import  NoSuchElementException
 from MyPyQt5 import QThread,QObject,pyqtSignal
 import typing , time , sqlite3 , datetime , os
-from exception import TimeoutException
+
 
 # https://web.telegram.org/?legacy=1#/im?p=@Profasdasd
 # https://t.me/Profasdasd
@@ -38,26 +38,39 @@ class JavaScriptCodeHandler(object):
         end_time = time.time() + timeout
         while True:
             if time.time() > end_time :
-                raise TimeoutException
+                print("TimedOut and Breaked")
+                break
             try:
                 result = self.driver.find_element(by,val)
                 break
             except NoSuchElementException :
-                QThread.sleep(1)
+                QThread.msleep(100)
         return result
     
     def WaitingElements(self,timeout:int,val:str,by:str=By.XPATH)->typing.Optional[typing.List[WebElement]]:
         end_time = time.time() + timeout
         while True:
             if time.time() > end_time :
-                raise TimeoutException
+                print("TimedOut and Breaked")
+                break
             try:
                 result = self.driver.find_elements(by,val)
                 break
             except NoSuchElementException :
-                QThread.sleep(1)
+                QThread.msleep(100)
         return result
             
+    def WaitingMethod(self,timeout:int,func):
+        end_time = time.time() + timeout
+        while True:
+            if time.time() > end_time :
+                print("TimedOut and Breaked")
+                break
+            try:
+                result = func()
+            except Exception as e :
+                pass
+        return result
 
     def getCurrentHandle(self)-> str:
         """ Return Handle From Current Link or UserID if Handle Not Found"""
@@ -71,23 +84,23 @@ class JavaScriptCodeHandler(object):
         """ Return List Of Current Group Members [WebElements] """#With selenium
         return self.jscode(self.GET_ALL_MEMBER)
     
-    def scrolldown(self)->None:
+    def scrolldown(self, round:int=1 )->None:
         """ Scrolling Down In Page """
-        self.jscode(self.SCROLL_DOWN)
+        for i in range(round):
+            self.jscode(self.SCROLL_DOWN)
 
 
-    def getName(self,id:str)->str:
-        print(self.GET_NAME.replace("ID",str(id)))
-        return self.jscode(self.GET_NAME.replace("ID",str(id)))
+    def getName(self,id:str)-> WebElement: #print(self.GET_NAME.replace("ID",str(id)))# self.jscode(self.GET_NAME.replace("ID",str(id)))
+        """ Return WebElement of Name of ID"""
+        return self.WaitingElement(
+            timeout = 10 ,
+            val = f"//span[@class='peer-title'][@data-peer-id='{id}']"
+        )
 
     def getIDfromElm(self,index) -> str :
         return self.jscode(self.GET_MEMBER_ID.replace("index",f"{index}"))
     
     
-        
-
-    
-
 
 class Telegram(QObject):
     LeadSignal = pyqtSignal(list)
@@ -111,6 +124,7 @@ class Telegram(QObject):
         self.js = JavaScriptCodeHandler(self.driver)
         self.driver.maximize_window()
         self.driver.get("https://web.telegram.org/k/")
+        self.leadCount = 0
         self.js.WaitingElement(600,"//div[@class='chat-background']")
         QThread.sleep(3)
         super().__init__()
@@ -136,32 +150,41 @@ class Telegram(QObject):
         self,
         grouphandle:str,
         limit:int ,
+        collect:int ,
         ) -> None:
-
+        print(f"{limit},{grouphandle}")
         self.driver.get(f"https://web.telegram.org/k/#{grouphandle}")
+        QThread.sleep(5)
         self.js.WaitingElement(10,"//div[@class='info']")
         membersCount = self.js.getMembersCount()
-        #print(membersCount)
         members = self.js.getMembers()
-        while len(members) < limit :
+        while len(members) < collect :
             if len(members) >= membersCount :
                 print("Breaked all in group")
                 break
-            self.js.scrolldown()
-            QThread.sleep(2)
+            self.js.scrolldown(2)
             members = self.js.getMembers()
 
         for member in members:
+            if self.leadCount >= limit :
+                break
             User_ID = self.js.getIDfromElm(
                 index = members.index(member), 
             )
-            print(f"{User_ID}\n")
+            print(f"\n{User_ID}\n")
             if not self.exist("User_ID",User_ID):
                 print(f"{User_ID}")
                 self.driver.get(f"https://web.telegram.org/k/#{User_ID}")
-                #member.click()
+                self.js.WaitingElement(
+                    timeout = 10 ,
+                    val = "//div[@id='column-right']"
+                )
+                try:
+                    Name = self.js.getName(User_ID).text
+                except Exception as e :
+                    Name = ""
+                    print(e)
                 Handle = self.js.getCurrentHandle()
-                Name = self.js.getName(User_ID)
                 self.add_to_db(
                     User_ID = User_ID ,
                     Handle = Handle ,
@@ -170,11 +193,13 @@ class Telegram(QObject):
                 )
                 print([str(User_ID) , Handle , Name ])
                 if User_ID != Handle :
-                    self.LeadSignal.emit([ 
-                                str(User_ID) , 
-                                Handle , 
-                                Name ,
-                                ])
+                    self.LeadSignal.emit([
+                        str(User_ID) , 
+                        Handle , 
+                        Name ,
+                    ])
+                    self.leadCount += 1
+
 
 
     def addMembersToChannel(
@@ -199,9 +224,9 @@ class Telegram(QObject):
         )[1]
         for handle in handlesList:
             searchElement.send_keys(handle)
-
+            QThread.sleep(1)
             results = self.js.WaitingElements(
-                timeout = 30 , 
+                timeout = 10 , 
                 val = "//div[@my-peer-link='contact.userID']"
             )
             for elm in results:
@@ -215,5 +240,7 @@ class Telegram(QObject):
             timeout = 30 ,
             val = "//button[@ng-switch-when='select']"
         ).click()
+        QThread.sleep(5)
 
-
+    def exit(self):
+        self.driver.quit()
