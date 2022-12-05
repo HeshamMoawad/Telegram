@@ -10,20 +10,20 @@ border-radius:6px;
 
 # from telethon import TelegramClient, events, sync
 # from telethon.tl.functions.channels import JoinChannelRequest
-from time import sleep
+# from time import sleep
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
 
-api_id = 28013226
+# api_id = 28013226
 
-api_hash = 'e0330d20097370f2e70231c202a2df13'
+# api_hash = 'e0330d20097370f2e70231c202a2df13'
 
-from telethon.sync import TelegramClient
-from telethon import functions
-from telethon import types
+# from telethon.sync import TelegramClient
+# from telethon import functions
+# from telethon import types
 
-client = TelegramClient("session", api_id, api_hash) 
-client.start()
+# client = TelegramClient("session", api_id, api_hash) 
+# client.start()
 
 # # Invite to channel  ------------------
 # result = client(functions.channels.InviteToChannelRequest(
@@ -44,17 +44,17 @@ client.start()
 # print(res.participants[2].user_id)
 
 
-result = client(functions.channels.GetParticipantsRequest(
-    channel= "Shmnaif" , 
-    filter = types.ChannelParticipantsSearch("") ,
-    offset = 2000 ,
-    limit = 2000 ,
-    hash = -12398745604826 ,
+# result = client(functions.channels.GetParticipantsRequest(
+#     channel= "Shmnaif" , 
+#     filter = types.ChannelParticipantsSearch("") ,
+#     offset = 2000 ,
+#     limit = 2000 ,
+#     hash = -12398745604826 ,
 
-))
+# ))
 
-print(len(result.users))
-print(result.users[0].username)
+# print(len(result.users))
+# print(result.users[0].username)
 
 
 
