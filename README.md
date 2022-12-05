@@ -1,11 +1,11 @@
 # Telegram
 TelegramApp to scrape Handles from groups and add them to your channel 
 
-![Screenshot](page1.png) 
+![Screenshot](page1.PNG) 
 
-![Screenshot](page2.png) 
+![Screenshot](page2.PNG) 
 
-![Screenshot](page3.png) 
+![Screenshot](page3.PNG) 
 
 
 ## Pages
