@@ -60,6 +60,7 @@ class Window(MyQMainWindow):
         self.AddingThread.message.connect(self.Page2.msg.showInfo)
         self.Page2.start.clicked.connect(self.AddingThread.start)
         self.Page2.stop.clicked.connect(lambda : self.AddingThread.kill(True))
+        self.setAppIcon("Data\Icons\\app.jpg")
         return super().SetupUi()
     
     
