@@ -186,8 +186,8 @@ class Page2(QObject): ## ------------------------------------------ Page 2
         self.limitLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.horizontalLayout_2.addWidget(self.limitLabel)
         self.spinBox = QtWidgets.QSpinBox(self.frame_2)
-        self.spinBox.setMinimum(10)
-        self.spinBox.setMaximum(100000)
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(200)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.spinBox.setSizePolicy(sizePolicy)
         self.spinBox.setStyleSheet("""background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(68, 90, 25, 203));color:white;border-radius:6px;""")#background-color:transparent;border:2px solid qlineargradient(spread:pad, x1:0.716, y1:0, x2:0.517, y2:0.613409, stop:0.289773 rgba(151, 133, 210, 223), stop:0.926136 rgba(0, 183, 232, 239));
@@ -372,15 +372,14 @@ class Page3(QObject):  ## ------------------------------------------ Page 3
         user = self.lineEdit.text()
         self.lineEdit.clear()
         try:
-            dir = f"{os.getcwd()}\\Profiles\\{user}"
-            try:
-                os.mkdir(dir)
-            except Exception as e :
-                print(e)
+            dir = f"{os.getcwd()}\Profiles\\{user}"
+            os.mkdir(dir)
+            print(dir)
+            print("------------------")
             tel = Telegram(
                 headless= False ,
                 darkMode= False ,
-                userProfile = dir ,
+                userProfile = user ,
             )
             self.comboBox.addItem(user)
             self.msg.showInfo(text=f"Nice {user} Added Succecfully")

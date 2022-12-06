@@ -112,7 +112,10 @@ class ScraperThread(MyThread):
         return self.MainClass 
 
     def kill(self, msg: typing.Optional[bool]):
-        self.Telegram.exit()
+        try:
+            self.Telegram.exit()
+        except Exception as e :
+            print(e)
         return super().kill(msg)
 
 class AddingThread(ScraperThread):
@@ -143,7 +146,7 @@ class AddingThread(ScraperThread):
             self.statues.emit(f"Start Adding Handles")
             self.Telegram.addMembersToChannel(
                 channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName) ,
-                handlesList = self.MainClass.Page2.getHandlesList()[:limit],
+                handlesList = self.MainClass.Page2.getHandlesList()[:limit-1],
             )
             self.statues.emit("Ending Good Luck Next Time -_^")
             self.Telegram.exit()

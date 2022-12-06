@@ -7,6 +7,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import  NoSuchElementException
+from telethon import TelegramClient, events, sync
+from telethon.tl.functions.channels import JoinChannelRequest
+
 from MyPyQt5 import QThread,QObject,pyqtSignal
 import typing , time , sqlite3 , datetime , os
 
@@ -205,42 +208,116 @@ class Telegram(QObject):
     def addMembersToChannel(
         self,
         channelHandle:str ,
-        handlesList:typing.List[str],
+        handlesList:typing.List[str], 
         )-> None :
+        """Limit Maximmum 200 Member and 190 Prefered"""
 
-        self.driver.get(f"https://web.telegram.org/?legacy=1#/im?p={channelHandle}")
-        self.js.WaitingElement(
-            timeout = 30 , 
-            val= "//a[@class='tg_head_btn']"
-        ).click()
-        self.js.WaitingElement(
-            timeout = 30 ,
-            val = "//a[@class='md_modal_section_link']"
-        ).click()
 
-        searchElement = self.js.WaitingElements(
-            timeout = 30 , 
-            val = "//input[@type='search']" ,
-        )[1]
-        for handle in handlesList:
-            searchElement.send_keys(handle)
-            QThread.sleep(1)
-            results = self.js.WaitingElements(
-                timeout = 10 , 
-                val = "//div[@my-peer-link='contact.userID']"
-            )
-            for elm in results:
-                if elm.text != 'Unsupported User':
-                    elm.click()
-                    self.PersntageSignal.emit(int(((handlesList.index(handle)+1)/len(handlesList))*100))
+        api_id = 28013226
 
-            searchElement.clear()
+        api_hash = 'e0330d20097370f2e70231c202a2df13'
 
-        self.js.WaitingElement(
-            timeout = 30 ,
-            val = "//button[@ng-switch-when='select']"
-        ).click()
-        QThread.sleep(5)
+        try:
+            from telethon.sync import TelegramClient
+            from telethon import functions
+            client = TelegramClient("session", api_id, api_hash) 
+            client.start()
+            # Invite to channel  ------------------
+            result = client(functions.channels.InviteToChannelRequest(
+                channel = channelHandle.replace("@","") ,
+                users = handlesList ,
+            ))
+            print(result.stringify())
+            print("Added Succecfully With Telethon ")
+        except Exception as e :
+            print(e)
+            print("Can't Added with telethon Trying Mannual Adding")
+            self.driver.get(f"https://web.telegram.org/?legacy=1#/im?p={channelHandle}")
+            self.js.WaitingElement(
+                timeout = 30 , 
+                val= "//a[@class='tg_head_btn']"
+            ).click()
+            self.js.WaitingElement(
+                timeout = 30 ,
+                val = "//a[@class='md_modal_section_link']"
+            ).click()
+
+            searchElement = self.js.WaitingElements(
+                timeout = 30 , 
+                val = "//input[@type='search']" ,
+            )[1]
+            for handle in handlesList:
+                searchElement.send_keys(handle)
+                QThread.sleep(1)
+                results = self.js.WaitingElements(
+                    timeout = 10 , 
+                    val = "//div[@my-peer-link='contact.userID']"
+                )
+                for elm in results:
+                    if elm.text != 'Unsupported User':
+                        elm.click()
+                        self.PersntageSignal.emit(int(((handlesList.index(handle)+1)/len(handlesList))*100))
+
+                searchElement.clear()
+
+            self.js.WaitingElement(
+                timeout = 30 ,
+                val = "//button[@ng-switch-when='select']"
+            ).click()
+            QThread.sleep(5)
 
     def exit(self):
         self.driver.quit()
+
+
+
+# getIDs from group
+# res = client(functions.channels.GetParticipantsRequest(
+#     channel = "Shmnaif" ,
+#     filter = types.ChannelParticipantsSearch("") ,
+#     offset = 100 ,
+#     limit = 100 ,
+#     hash = -12398745604826 ,
+# ))
+# print(res.count)
+# print(res.participants[2].user_id)
+
+
+# result = client(functions.channels.GetParticipantsRequest(
+#     channel= "Shmnaif" , 
+#     filter = types.ChannelParticipantsSearch("") ,
+#     offset = 2000 ,
+#     limit = 2000 ,
+#     hash = -12398745604826 ,
+
+# ))
+
+# print(len(result.users))
+# print(result.users[0].username)
+
+
+
+
+
+# from telethon.sync import TelegramClient
+
+
+# session_path = "sessions.session"
+# if not session_path.exists():
+#     session_path.mkdir()
+
+# # phone_number = get_phone_number()
+# client = TelegramClient(f"sessions", api_id, api_hash)#, proxy=proxy
+
+
+# async def main():
+#     await client.connect()
+
+#     await client.send_code_request(f"+201554071240", force_sms=True)
+#     verification_code = client.get_verification_code()
+#     await client.sign_up(verification_code, names.get_first_name(), names.get_last_name())
+
+#     await client.disconnect()
+
+
+# client.loop.run_until_complete(main())
