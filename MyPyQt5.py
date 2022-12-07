@@ -2,13 +2,11 @@ import typing , sys
 import pandas
 from PyQt5.QtCore import (QCoreApplication, QEasingCurve, QPoint, QPointF, QEvent ,
                           QPropertyAnimation, QRect, QRectF, QObject ,
-                          QSequentialAnimationGroup, QSize, Qt, pyqtProperty,
+                          QSequentialAnimationGroup, QSize, Qt, pyqtProperty, QEventLoop ,
                           pyqtSignal, pyqtSlot , QThread)
 from PyQt5.QtGui import * 
 from PyQt5.QtWidgets import *
 from styles import Styles
-
-
 
 
 class MyQTreeWidget(QTreeWidget,QWidget):

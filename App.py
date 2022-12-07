@@ -1,7 +1,8 @@
-from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow,MyThread , pyqtSignal ,typing ,Validation
+from MyPyQt5 import QSideMenuNewStyle,MyQMainWindow,MyThread ,QEventLoop, pyqtSignal ,typing ,Validation
 from pages import Page1 , Page2 , Page3
 from styles import Styles
-from mainclass import Telegram
+from mainclass import Telegram , AsyncMethods
+import asyncio
 
 
 class Window(MyQMainWindow):
@@ -122,6 +123,7 @@ class ScraperThread(MyThread):
 class AddingThread(ScraperThread):
     PersntageSignal = pyqtSignal(int)
     def run(self) -> None:
+        
         self.statues.emit("Adding Mode Starting ")
         channelName = self.MainClass.Page2.channelLineEdit.text()
         self.MainClass.Page2.channelLineEdit.clear()
@@ -129,31 +131,50 @@ class AddingThread(ScraperThread):
         user = self.MainClass.Page3.comboBox.currentText()
         self.MainClass.Page1.setkey(self.MainClass.valid.channelNameOrLinkToHandle(channelName))
         self.statues.emit(f"Current Openning User : {user}")
-        try :
-            self.Telegram = Telegram(
-                headless = self.MainClass.Menu.Hidetoggle.isChecked() ,
-                darkMode = self.MainClass.Menu.DarkModetoggle.isChecked() ,
-                userProfile = user,
-            )
-            self.statues.emit(f"Opened {user} Succecfully")
-            con = True
+        try:
+            loop = asyncio.new_event_loop()
+            self.AsyncMethods = AsyncMethods()
+            asyncio.set_event_loop(loop)
+            self.AsyncMethods.AddingToChannelAsync(
+                channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(
+                    channelName
+                    ),
+                handlesList = self.MainClass.Page2.getHandlesList()[:limit],
+                client="profit",
+                )
+            con = False
         except Exception as e :
             print(e)
-            self.message.emit(f"Can't Opinnig this User {user}")
-            con = False
+            con = True
+            self.message.emit(f"Can't Run API in this Thread {e}")
         if con:
-            self.Telegram.LeadSignal.connect(self.LeadSignal.emit)
-            self.Telegram.PersntageSignal.connect(self.PersntageSignal.emit)
-            self.statues.emit(f"Start Adding Handles")
-            self.Telegram.addMembersToChannel(
-                channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName) ,
-                handlesList = self.MainClass.Page2.getHandlesList()[:limit-1],
-            )
-            self.statues.emit("Ending Good Luck Next Time -_^")
-            self.Telegram.exit()
-            self.message.emit("حبيب اخوك ابقى تعالى تانى")
+            try : 
+                self.Telegram = Telegram(
+                    headless = self.MainClass.Menu.Hidetoggle.isChecked() ,
+                    darkMode = self.MainClass.Menu.DarkModetoggle.isChecked() ,
+                    userProfile = user,
+                )
+                self.statues.emit(f"Opened {user} Succecfully")
+                con = True
+            except Exception as e :
+                print(e)
+                self.message.emit(f"Can't Opinnig this User {user}")
+                con = False
+            if con:
+                self.Telegram.LeadSignal.connect(self.LeadSignal.emit)
+                self.Telegram.PersntageSignal.connect(self.PersntageSignal.emit)
+                self.statues.emit(f"Start Adding Handles")
+                self.Telegram.addMembersToChannel(
+                    channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName) ,
+                    handlesList = self.MainClass.Page2.getHandlesList()[:limit],
+                )
+        self.statues.emit("Ending Good Luck Next Time -_^")
+        self.Telegram.exit()
+        self.message.emit("حبيب اخوك ابقى تعالى تانى")
 
-
+    def kill(self, msg: typing.Optional[bool]):
+        self.AsyncMethods.app.stop(False)
+        return super().kill(msg)
 if __name__ == "__main__":
     w = Window()
 

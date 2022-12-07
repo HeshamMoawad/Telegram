@@ -7,6 +7,42 @@ background-color:transparent;
 border:2px solid qlineargradient(spread:pad, x1:0.716, y1:0, x2:0.517, y2:0.613409, stop:0.289773 rgba(151, 133, 210, 223), stop:0.926136 rgba(0, 183, 232, 239));
 border-radius:6px;
 """
+
+
+
+
+
+
+
+# api_id = 25024030
+# api_hash = 'd61f15e860f17aae83252cb108abded6'
+# import asyncio
+# from pyrogram import Client
+# from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood
+# def main():
+#     with Client("profit", api_id, api_hash ) as app:
+#         me = app.get_me()
+#         print(me.phone_number)
+#         hanlist = ["@turki7700","@asiri1439","@KSA1oo","@Elsaleemi"]
+#         print("succecss log")
+#         for handle in hanlist:
+#             try:
+#                 app.add_chat_members(chat_id = "@profitway05",user_ids=handle)
+#                 print(f"succecss adding {handle}")
+#             except UserPrivacyRestricted :
+#                 print(f"{handle} The user privacy settings is Disabled auto invite")
+#             except ChatAdminRequired :
+#                 print("The method requires chat admin (you must be a Creator of channel)")
+#                 break
+#             except PeerFlood:
+#                 print("can't be used because your account is banned currently limited")
+#                 break
+#             except Exception as e :
+#                 print(e) 
+# main()
+# asyncio.run(main())
+
+
 class Styles():
     BUTTON = """
     QPushButton{

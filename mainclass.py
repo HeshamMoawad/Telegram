@@ -7,11 +7,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import  NoSuchElementException
-from telethon import TelegramClient, events, sync
-from telethon.tl.functions.channels import JoinChannelRequest
-
-from MyPyQt5 import QThread,QObject,pyqtSignal
+# from telethon import TelegramClient, events, sync
+# from telethon.tl.functions.channels import JoinChannelRequest
+import random
+from MyPyQt5 import QThread,QObject,pyqtSignal,QEventLoop
 import typing , time , sqlite3 , datetime , os
+from pyrogram import Client
+from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood
 
 
 # https://web.telegram.org/?legacy=1#/im?p=@Profasdasd
@@ -103,6 +105,45 @@ class JavaScriptCodeHandler(object):
     def getIDfromElm(self,index) -> str :
         return self.jscode(self.GET_MEMBER_ID.replace("index",f"{index}"))
     
+
+class AsyncMethods(QObject):
+    def __init__(self) -> None:
+        self.api_id = 25024030
+        self.api_hash = 'd61f15e860f17aae83252cb108abded6'
+        super().__init__()
+
+    def AddingToChannelAsync(
+        self,
+        channelHandle:str,
+        handlesList:str,
+        client:str ,
+        interval:int = 10 ,
+        ):
+        self.channleHandle = channelHandle
+        self.app = Client(client, self.api_id, self.api_hash )
+        self.app.start()
+        me = self.app.get_me()
+        print(me.phone_number)
+        print("succecss log")
+        for handle in handlesList:
+            try:
+                QThread.sleep(random.randint(3,interval))
+                self.app.add_chat_members(chat_id = self.channleHandle ,user_ids = handle)
+                print(f"succecss adding {handle}")
+            except UserPrivacyRestricted :
+                print(f"{handle} The user privacy settings is Disabled auto invite")
+            except ChatAdminRequired :
+                print("The method requires chat admin (you must be a Creator of channel)")
+                break
+            except PeerFlood:
+                print("can't be used because your account is banned currently limited")
+                break
+            except Exception as e :
+                print(e) 
+        self.app.stop()
+
+
+
     
 
 class Telegram(QObject):
@@ -155,6 +196,7 @@ class Telegram(QObject):
         limit:int ,
         collect:int ,
         ) -> None:
+
         print(f"{limit},{grouphandle}")
         self.driver.get(f"https://web.telegram.org/k/#{grouphandle}")
         QThread.sleep(5)
@@ -205,66 +247,63 @@ class Telegram(QObject):
 
 
 
+
+
+
+
+
+
+    # def addMembersToChannelAsync(
+    #     self,
+    #     channelHandle:str ,
+    #     handlesList:typing.List[str], 
+    #     client:str
+    #     )-> None :
+    #     """Limit Maximmum 200 Member and 190 Prefered"""
+    #     self.AsyncMethods = AsyncMethods()
+    #     self.AsyncMethods.AddingToChannelAsync(channelHandle=channelHandle,handlesList=handlesList,client=client,interval=10)
+    #     QThread.sleep(5)
+
     def addMembersToChannel(
         self,
         channelHandle:str ,
         handlesList:typing.List[str], 
+        interval:int = 15 ,
         )-> None :
         """Limit Maximmum 200 Member and 190 Prefered"""
+        self.driver.get(f"https://web.telegram.org/?legacy=1#/im?p={channelHandle}")
+        self.js.WaitingElement(
+            timeout = 30 , 
+            val= "//a[@class='tg_head_btn']"
+        ).click()
+        self.js.WaitingElement(
+            timeout = 30 ,
+            val = "//a[@class='md_modal_section_link']"
+        ).click()
 
+        searchElement = self.js.WaitingElements(
+            timeout = 30 , 
+            val = "//input[@type='search']" ,
+        )[1]
+        for handle in handlesList:
+            searchElement.send_keys(handle)
+            QThread.sleep(random.randint(2,interval))
+            results = self.js.WaitingElements(
+                timeout = 10 , 
+                val = "//div[@my-peer-link='contact.userID']"
+            )
+            for elm in results:
+                #if elm.text != 'Unsupported User':
+                elm.click()
+                self.PersntageSignal.emit(int(((handlesList.index(handle)+1)/len(handlesList))*100))
 
-        api_id = 28013226
+            searchElement.clear()
 
-        api_hash = 'e0330d20097370f2e70231c202a2df13'
-
-        try:
-            from telethon.sync import TelegramClient
-            from telethon import functions
-            client = TelegramClient("session", api_id, api_hash) 
-            client.start()
-            # Invite to channel  ------------------
-            result = client(functions.channels.InviteToChannelRequest(
-                channel = channelHandle.replace("@","") ,
-                users = handlesList ,
-            ))
-            print(result.stringify())
-            print("Added Succecfully With Telethon ")
-        except Exception as e :
-            print(e)
-            print("Can't Added with telethon Trying Mannual Adding")
-            self.driver.get(f"https://web.telegram.org/?legacy=1#/im?p={channelHandle}")
-            self.js.WaitingElement(
-                timeout = 30 , 
-                val= "//a[@class='tg_head_btn']"
-            ).click()
-            self.js.WaitingElement(
-                timeout = 30 ,
-                val = "//a[@class='md_modal_section_link']"
-            ).click()
-
-            searchElement = self.js.WaitingElements(
-                timeout = 30 , 
-                val = "//input[@type='search']" ,
-            )[1]
-            for handle in handlesList:
-                searchElement.send_keys(handle)
-                QThread.sleep(1)
-                results = self.js.WaitingElements(
-                    timeout = 10 , 
-                    val = "//div[@my-peer-link='contact.userID']"
-                )
-                for elm in results:
-                    if elm.text != 'Unsupported User':
-                        elm.click()
-                        self.PersntageSignal.emit(int(((handlesList.index(handle)+1)/len(handlesList))*100))
-
-                searchElement.clear()
-
-            self.js.WaitingElement(
-                timeout = 30 ,
-                val = "//button[@ng-switch-when='select']"
-            ).click()
-            QThread.sleep(5)
+        self.js.WaitingElement(
+            timeout = 30 ,
+            val = "//button[@ng-switch-when='select']"
+        ).click()
+        QThread.sleep(5)
 
     def exit(self):
         self.driver.quit()
