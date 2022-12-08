@@ -10,10 +10,10 @@ from selenium.common.exceptions import  NoSuchElementException
 # from telethon import TelegramClient, events, sync
 # from telethon.tl.functions.channels import JoinChannelRequest
 import random
-from MyPyQt5 import QThread,QObject,pyqtSignal,QEventLoop
+from MyPyQt5 import QThread,QObject,pyqtSignal
 import typing , time , sqlite3 , datetime , os
 from pyrogram import Client
-from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood
+from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood , UserChannelsTooMuch
 
 
 # https://web.telegram.org/?legacy=1#/im?p=@Profasdasd
@@ -107,7 +107,13 @@ class JavaScriptCodeHandler(object):
     
 
 class AsyncMethods(QObject):
+    #LeadSignal = pyqtSignal()
+    status = pyqtSignal(str)
+    PersntageSignal = pyqtSignal(int)
+    Counter = pyqtSignal(int,int,int)
     def __init__(self) -> None:
+        self.addsuccec = 0
+        self.dontadded = 0
         self.api_id = 25024030
         self.api_hash = 'd61f15e860f17aae83252cb108abded6'
         super().__init__()
@@ -118,31 +124,48 @@ class AsyncMethods(QObject):
         handlesList:str,
         client:str ,
         interval:int = 10 ,
-        ):
+        ) -> None :
+
         self.channleHandle = channelHandle
         self.app = Client(client, self.api_id, self.api_hash )
         self.app.start()
         me = self.app.get_me()
-        print(me.phone_number)
+        self.status.emit(f"Succecfully Login with +{me.phone_number}")
         print("succecss log")
+        print(f"{self.addsuccec},{self.dontadded},{len(handlesList)}")
+        self.Counter.emit(self.addsuccec,self.dontadded,len(handlesList)) 
         for handle in handlesList:
+            print(f"{self.addsuccec},{self.dontadded},{int(len(handlesList)- (handlesList.index(handle)+1))}")
             try:
-                QThread.sleep(random.randint(3,interval))
+                self.sleepingStatus(interval)
                 self.app.add_chat_members(chat_id = self.channleHandle ,user_ids = handle)
                 print(f"succecss adding {handle}")
+                self.addsuccec += 1
             except UserPrivacyRestricted :
                 print(f"{handle} The user privacy settings is Disabled auto invite")
+                self.dontadded += 1
             except ChatAdminRequired :
                 print("The method requires chat admin (you must be a Creator of channel)")
                 break
             except PeerFlood:
                 print("can't be used because your account is banned currently limited")
                 break
+            except UserChannelsTooMuch:
+                print('The user is already in too many channels')
+
             except Exception as e :
-                print(e) 
+                self.dontadded += 1
+                print(e)
+            self.Counter.emit(self.addsuccec,self.dontadded,int(len(handlesList)- (handlesList.index(handle)+1))) 
+            self.PersntageSignal.emit(int(float((handlesList.index(handle)+1)/len(handlesList))))
         self.app.stop()
 
-
+    def sleepingStatus(self,interval):
+        sleep = random.randint(3,interval)
+        for i in range(interval-1) :
+            self.status.emit(f"sleeping {sleep}s")
+            QThread.sleep(1)
+            sleep -= 1
 
     
 
@@ -204,6 +227,7 @@ class Telegram(QObject):
         membersCount = self.js.getMembersCount()
         members = self.js.getMembers()
         while len(members) < collect :
+            print(len(members))
             if len(members) >= membersCount :
                 print("Breaked all in group")
                 break

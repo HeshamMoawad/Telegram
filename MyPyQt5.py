@@ -529,6 +529,7 @@ class MyThread(QThread):
         if self.isRunning():
             self.terminate()
             self.wait()
+            self.statues.emit("Status")
             if msg:
                 self.msg.showInfo(text="سيبونا ناخد فرصتنا بقى")
 

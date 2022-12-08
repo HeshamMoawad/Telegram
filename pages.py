@@ -256,6 +256,12 @@ class Page2(QObject): ## ------------------------------------------ Page 2
         self.bar.setStyleSheet(Styles.PROGRESSBAR)
         self.verticalLayout_10.addWidget(self.bar)
         #-----------
+        self.label_counter = QtWidgets.QLabel(self.frame_4)
+        self.label_counter.setFont(font)
+        self.label_counter.setText("Succecfully: 0 \nFaild: 0 \nWaiting: 0  ")
+        #self.label_counter.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.verticalLayout_10.addWidget(self.label_counter)
+        #-----------
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_10.addItem(spacerItem)
         #------------------------------
@@ -285,8 +291,12 @@ class Page2(QObject): ## ------------------------------------------ Page 2
     def clearDF(self):
         self.df = pd.DataFrame()
         self.importLabel.setText("Imported @Handles : -->")
+        self.label_counter.setText("Succecfully: 0 \nFaild: 0 \nWaiting: 0  ")
         self.bar.setValue(0)
 
+    def Counter(self,succec:int,faild:int,waiting:int):
+        self.label_counter.setText(f"Succecfully: {succec} \nFaild: {faild} \nWaiting: {waiting} ")
+        
 
 class Page3(QObject):  ## ------------------------------------------ Page 3
     def __init__(self,parent:typing.Optional[QtWidgets.QWidget]) -> None:

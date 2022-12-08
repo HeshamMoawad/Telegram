@@ -58,6 +58,7 @@ class Window(MyQMainWindow):
         self.AddingThread.setMainClass(self)
         self.AddingThread.statues.connect(self.Menu.MainLabel.setText)
         self.AddingThread.PersntageSignal.connect(self.Page2.bar.setValue)
+        self.AddingThread.Counter.connect(self.Page2.Counter)
         self.AddingThread.message.connect(self.Page2.msg.showInfo)
         self.Page2.start.clicked.connect(self.AddingThread.start)
         self.Page2.stop.clicked.connect(lambda : self.AddingThread.kill(True))
@@ -120,8 +121,16 @@ class ScraperThread(MyThread):
             print(e)
         return super().kill(msg)
 
+
+
+
+
+
+
+
 class AddingThread(ScraperThread):
     PersntageSignal = pyqtSignal(int)
+    Counter = pyqtSignal(int,int,int)
     def run(self) -> None:
         
         self.statues.emit("Adding Mode Starting ")
@@ -134,14 +143,18 @@ class AddingThread(ScraperThread):
         try:
             loop = asyncio.new_event_loop()
             self.AsyncMethods = AsyncMethods()
+            self.AsyncMethods.PersntageSignal.connect(self.PersntageSignal.emit)
+            self.AsyncMethods.Counter.connect(self.Counter.emit)
+            self.AsyncMethods.status.connect(self.statues.emit)
             asyncio.set_event_loop(loop)
             self.AsyncMethods.AddingToChannelAsync(
                 channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(
                     channelName
                     ),
                 handlesList = self.MainClass.Page2.getHandlesList()[:limit],
-                client="profit",
+                client=user,#"ProfitWayCreator"
                 )
+            
             con = False
         except Exception as e :
             print(e)
@@ -168,9 +181,13 @@ class AddingThread(ScraperThread):
                     channelHandle = self.MainClass.valid.channelNameOrLinkToHandle(channelName) ,
                     handlesList = self.MainClass.Page2.getHandlesList()[:limit],
                 )
+                self.Telegram.exit()
         self.statues.emit("Ending Good Luck Next Time -_^")
-        self.Telegram.exit()
         self.message.emit("حبيب اخوك ابقى تعالى تانى")
+        try:
+            self.AsyncMethods.app.stop()
+        except Exception as e :
+            pass
 
     def kill(self, msg: typing.Optional[bool]):
         self.AsyncMethods.app.stop(False)
