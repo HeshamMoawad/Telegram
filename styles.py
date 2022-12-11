@@ -18,30 +18,47 @@ border-radius:6px;
 # api_hash = 'd61f15e860f17aae83252cb108abded6'
 # import asyncio
 # from pyrogram import Client
-# from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood
-# def main():
-#     with Client("profit", api_id, api_hash ) as app:
-#         me = app.get_me()
+# from pyrogram.errors import UserPrivacyRestricted , ChatAdminRequired , PeerFlood,UserChannelsTooMuch
+# import pandas , sqlite3
+# con = sqlite3.connect("Data\DataBase.db")
+
+
+
+# db = pandas.read_excel('Data\Exports\[2022-12-08].xlsx') #read_sql_query('SELECT * FROM data',con)
+# def delete(val:str):
+#     index =  db[db["Handle"]==val].index
+#     db.drop(index,axis=0,inplace=True)
+
+# hanlist = db['Handle'].tolist()
+# async def main():
+#     async with Client("MmlkaCreator", api_id, api_hash ) as app:
+#         me = await app.get_me()
 #         print(me.phone_number)
-#         hanlist = ["@turki7700","@asiri1439","@KSA1oo","@Elsaleemi"]
 #         print("succecss log")
 #         for handle in hanlist:
+#             print(handle)
 #             try:
-#                 app.add_chat_members(chat_id = "@profitway05",user_ids=handle)
+#                 await app.add_chat_members(chat_id = "@mmlkahome",user_ids=handle)
+#                 await asyncio.sleep(3)
 #                 print(f"succecss adding {handle}")
 #             except UserPrivacyRestricted :
 #                 print(f"{handle} The user privacy settings is Disabled auto invite")
+#                 delete(handle)
 #             except ChatAdminRequired :
 #                 print("The method requires chat admin (you must be a Creator of channel)")
 #                 break
+#             except UserChannelsTooMuch:
+#                 print('The user is already in too many channels')
+#                 delete(handle)
 #             except PeerFlood:
 #                 print("can't be used because your account is banned currently limited")
-#                 break
+#                 #break
 #             except Exception as e :
 #                 print(e) 
-# main()
-# asyncio.run(main())
+#         print(db)
+#         db.to_excel("Important[8/12].xlsx",index=False)
 
+# asyncio.run(main())
 
 class Styles():
     BUTTON = """

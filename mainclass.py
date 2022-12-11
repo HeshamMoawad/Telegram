@@ -118,6 +118,15 @@ class AsyncMethods(QObject):
         self.api_hash = 'd61f15e860f17aae83252cb108abded6'
         super().__init__()
 
+    # def PersantageFunc(self,*args):
+    #     self.PersntageSignal.emit(args)
+
+    # def statusFunc(self,*args):
+    #     self.status.emit(args)
+
+    # def CounterFunc(self,*args):
+    #     self.Counter.emit(args)
+
     def AddingToChannelAsync(
         self,
         channelHandle:str,
@@ -130,10 +139,10 @@ class AsyncMethods(QObject):
         self.app = Client(client, self.api_id, self.api_hash )
         self.app.start()
         me = self.app.get_me()
-        self.status.emit(f"Succecfully Login with +{me.phone_number}")
+        # self.statusFunc(f"Succecfully Login with +{me.phone_number}")
         print("succecss log")
         print(f"{self.addsuccec},{self.dontadded},{len(handlesList)}")
-        self.Counter.emit(self.addsuccec,self.dontadded,len(handlesList)) 
+        # self.CounterFunc(self.addsuccec,self.dontadded,len(handlesList)) 
         for handle in handlesList:
             print(f"{self.addsuccec},{self.dontadded},{int(len(handlesList)- (handlesList.index(handle)+1))}")
             try:
@@ -152,13 +161,13 @@ class AsyncMethods(QObject):
                 break
             except UserChannelsTooMuch:
                 print('The user is already in too many channels')
-
             except Exception as e :
                 self.dontadded += 1
                 print(e)
-            self.Counter.emit(self.addsuccec,self.dontadded,int(len(handlesList)- (handlesList.index(handle)+1))) 
-            self.PersntageSignal.emit(int(float((handlesList.index(handle)+1)/len(handlesList))))
+            # self.CounterFunc(self.addsuccec,self.dontadded,int(len(handlesList)- (handlesList.index(handle)+1))) 
+            # self.PersantageFunc(int(float((handlesList.index(handle)+1)/len(handlesList))))
         self.app.stop()
+        # self.statusFunc("Stopped")
 
     def sleepingStatus(self,interval):
         sleep = random.randint(3,interval)

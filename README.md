@@ -26,3 +26,4 @@ TelegramApp to scrape Handles from groups and add them to your channel
 * [Selenium](https://www.selenium.dev/)     For WebAutomation
 * [PyroGram](https://pyrogram.org/)         For Telegram Adding Methods  
 
+## Made By K7_Team Hesham

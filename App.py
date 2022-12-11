@@ -132,7 +132,6 @@ class AddingThread(ScraperThread):
     PersntageSignal = pyqtSignal(int)
     Counter = pyqtSignal(int,int,int)
     def run(self) -> None:
-        
         self.statues.emit("Adding Mode Starting ")
         channelName = self.MainClass.Page2.channelLineEdit.text()
         self.MainClass.Page2.channelLineEdit.clear()
@@ -152,9 +151,8 @@ class AddingThread(ScraperThread):
                     channelName
                     ),
                 handlesList = self.MainClass.Page2.getHandlesList()[:limit],
-                client=user,#"ProfitWayCreator"
+                client=user,
                 )
-            
             con = False
         except Exception as e :
             print(e)
